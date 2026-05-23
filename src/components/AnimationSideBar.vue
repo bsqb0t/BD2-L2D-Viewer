@@ -51,20 +51,20 @@
           class="bg-gray-700 text-white rounded px-2 py-1 text-sm"
         />
         <div class="overflow-y-auto sidebar-scroll flex-1 min-h-0">
-          <div v-if="!filteredLayerNames.length" class="text-sm text-gray-400 px-2 py-2">
+          <div v-if="!filteredLayers.length" class="text-sm text-gray-400 px-2 py-2">
             No layers found.
           </div>
           <label
-            v-for="layer in filteredLayerNames"
-            :key="layer"
+            v-for="layer in filteredLayers"
+            :key="layer.key"
             class="flex items-center gap-2 py-1 px-2 rounded cursor-pointer hover:bg-gray-700"
           >
             <input
               type="checkbox"
-              :checked="isLayerVisible(layer)"
-              @change="toggleLayer(layer)"
+              :checked="isLayerVisible(layer.key)"
+              @change="toggleLayer(layer.key)"
             />
-            <span class="truncate">{{ layer }}</span>
+            <span class="truncate" :title="layer.label">{{ layer.label }}</span>
           </label>
         </div>
       </template>
@@ -247,12 +247,44 @@ function handleClickOutside(e: MouseEvent) {
 const selectedAnimation = computed(() => store.selectedAnimation)
 const toggleLabel = computed(() => (store.playing ? 'Pause' : 'Play'))
 const currentChar = computed(() => store.characters.find(c => c.id === store.selectedCharacterId))
+const layerSourceSeparator = ' > '
 const layerNames = computed(() => [...store.layerNames].sort((a, b) => a.localeCompare(b)))
-const filteredLayerNames = computed(() => {
-  const query = layerFilter.value.trim().toLowerCase()
-  if (!query) return layerNames.value
-  return layerNames.value.filter(name => name.toLowerCase().includes(query))
+const layerItems = computed(() => {
+  const baseCounts = new Map<string, number>()
+  layerNames.value.forEach(name => {
+    const baseName = getLayerBaseName(name)
+    baseCounts.set(baseName, (baseCounts.get(baseName) ?? 0) + 1)
+  })
+
+  const seenDuplicates = new Map<string, number>()
+  return layerNames.value.map(name => {
+    const baseName = getLayerBaseName(name)
+    const duplicateCount = baseCounts.get(baseName) ?? 0
+    if (duplicateCount <= 1) {
+      return { key: name, label: baseName }
+    }
+
+    const seen = seenDuplicates.get(baseName) ?? 0
+    seenDuplicates.set(baseName, seen + 1)
+    return {
+      key: name,
+      label: seen === 0 ? baseName : `${baseName} (${seen === 1 ? 'extra' : `extra ${seen}`})`,
+    }
+  })
 })
+const filteredLayers = computed(() => {
+  const query = layerFilter.value.trim().toLowerCase()
+  if (!query) return layerItems.value
+  return layerItems.value.filter(layer =>
+    layer.key.toLowerCase().includes(query) || layer.label.toLowerCase().includes(query),
+  )
+})
+
+function getLayerBaseName(name: string) {
+  const separatorIndex = name.indexOf(layerSourceSeparator)
+  if (separatorIndex === -1) return name
+  return name.slice(separatorIndex + layerSourceSeparator.length)
+}
 
 function isLayerVisible(name: string) {
   const value = store.layerVisibility[name]
