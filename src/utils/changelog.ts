@@ -1,5 +1,16 @@
 export default [
   {
+    "date": "18/06/2026",
+    "changes": [
+      "Added Granhildr: Combat Medic ultimate and fated guest animations.",
+      "Updated Justia: Hot Summer Dream standing, ultimate and fated guest animations.",
+      "Deleted all the fated guest animations with no background because I don't plan to add more of them.",
+      "Added animation type filters for character search.",
+      "Added a functionality (the eye icon) that lets you toggle the UI to have a bigger space for the animation canvas by hidding some elements.",
+      "As always, if you like my work and want to support me so I can keep working on adding more features and improving the site you can do so by donating in either my Ko-Fi or Patreon <3."
+    ]
+  },
+  {
     "date": "04/06/2026",
     "changes": [
       "Added Scheherazade: Deliberate Ace, Nebris: Lucky Bikini, Darian: Herald of Enlightment, Nekyndalia: Deadeye, Granhildr: Combat Medic, Michaela: True Liberation and Luvencia: Ocean Vanguard character icon.",

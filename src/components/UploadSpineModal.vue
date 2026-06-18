@@ -123,7 +123,6 @@ function process() {
         cutscene: '',
         dating: '',
         icon: '',
-        datingHasNoBg: false,
         customFiles,
       }
       store.characters.unshift(char)

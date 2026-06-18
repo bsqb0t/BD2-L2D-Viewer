@@ -1,6 +1,7 @@
 <template>
   <div class="bg-gray-900 text-white h-dvh max-h-dvh flex flex-col">
     <Navbar
+      v-show="!inspectMode"
       :has-custom-background="hasCustomBackground"
       @mobile-menu="onNavMobileMenu"
       @upload-bg="onCustomBgUpload"
@@ -54,10 +55,13 @@
         </div>
         <div class="absolute top-17 left-4 lg:hidden z-50 flex flex-col items-start gap-2">
           <button
-            v-show="!overlayActive && store.characters.find(c => c.id === store.selectedCharacterId)?.datingHasNoBg && store.animationCategory === 'dating'"
-            @click="store.showDatingBg = !store.showDatingBg"
+            v-show="!overlayActive"
+            :aria-pressed="inspectMode"
+            aria-label="Inspect animation"
+            class="pb-2"
+            @click="onInspectModeChange(!inspectMode)"
           >
-            <BgToggleIcon :active="store.showDatingBg" />
+            <InspectAnimationIcon :active="inspectMode" />
           </button>
           <button
             v-show="!overlayActive"
@@ -83,6 +87,8 @@
         <SpineViewer
           ref="viewerRef"
           :mobile-overlay-active="overlayActive"
+          :inspect-mode="inspectMode"
+          @update:inspect-mode="onInspectModeChange"
           @animations="animations = $event"
           @skins="skins = $event"
         />
@@ -97,7 +103,7 @@
           </div>
         </div>
       </main>
-      <div class="hidden lg:flex flex-col min-h-0">
+      <div v-show="!inspectMode" class="hidden lg:flex flex-col min-h-0">
         <CharacterSidebar
           @select="onSelectCharacter"
           class="lg:w-80"
@@ -148,7 +154,7 @@ import CameraResetIcon from '@/components/icons/CameraResetIcon.vue';
 import MenuIcon from '@/components/icons/MenuIcon.vue';
 import PauseIcon from '@/components/icons/PauseIcon.vue';
 import PlayIcon from '@/components/icons/PlayIcon.vue';
-import BgToggleIcon from '@/components/icons/BgToggleIcon.vue';
+import InspectAnimationIcon from '@/components/icons/InspectAnimationIcon.vue';
 import LayerSelectIcon from '@/components/icons/LayerSelectIcon.vue';
 import MinusIcon from '@/components/icons/MinusIcon.vue';
 import PlusIcon from '@/components/icons/PlusIcon.vue';
@@ -164,6 +170,7 @@ const showMobileControls = ref(false)
 const navMobileMenuOpen = ref(false)
 const navbarOverlayActive = ref(false)
 const showLayerSelectionHint = ref(false)
+const inspectMode = ref(false)
 const overlayActive = computed(
   () => showMobileControls.value || navMobileMenuOpen.value || navbarOverlayActive.value,
 )
@@ -235,6 +242,15 @@ function onCustomBgUpload(image: string | null) {
 
 function onNavbarOverlayActive(active: boolean) {
   navbarOverlayActive.value = active
+}
+
+function onInspectModeChange(value: boolean) {
+  inspectMode.value = value
+  if (value) {
+    showMobileControls.value = false
+    navMobileMenuOpen.value = false
+    navbarOverlayActive.value = false
+  }
 }
 
 function clearLayerSelectionHintTimeout() {

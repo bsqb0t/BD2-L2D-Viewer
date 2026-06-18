@@ -2,8 +2,11 @@
   <div class="relative w-full h-full">
     <div
       ref="toolbarRef"
-      class="absolute left-2 top-16 lg:top-2 flex flex-col gap-2 pointer-events-auto transition-opacity duration-150"
-      :class="[showingMobileOverlay ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40']"
+      class="absolute left-2 flex flex-col gap-2 pointer-events-auto transition-opacity duration-150"
+      :class="[
+        showingMobileOverlay ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40',
+        inspectMode ? 'top-2' : 'top-16 lg:top-2',
+      ]"
     >
       <button
         ref="editToggleRef"
@@ -18,12 +21,14 @@
       </button>
       <div class="flex flex-row gap-2">
         <button
-          ref="datingToggleRef"
-          v-show="store.characters.find(c => c.id === store.selectedCharacterId)?.datingHasNoBg && store.animationCategory === 'dating'"
-          @click="store.showDatingBg = !store.showDatingBg"
+          type="button"
+          aria-label="Inspect animation"
+          :aria-pressed="inspectMode"
+          @click="emit('update:inspectMode', !inspectMode)"
           class="w-8 h-8 p-1.5 rounded-md hidden lg:flex items-center justify-center bg-gray-800/70 hover:bg-gray-700/70 text-white transition-colors"
+          :class="{ 'bg-indigo-600/90 hover:bg-indigo-500': inspectMode }"
         >
-          <BgToggleIcon :active="store.showDatingBg" />
+          <InspectAnimationIcon :active="inspectMode" />
         </button>
         <button
           @click="store.layerSelectionEnabled = !store.layerSelectionEnabled"
@@ -135,7 +140,7 @@ import cutsceneComposites, {
 } from '@/utils/cutscene_mappings'
 
 import BgEditIcon from '@/components/icons/BgEditIcon.vue'
-import BgToggleIcon from '@/components/icons/BgToggleIcon.vue'
+import InspectAnimationIcon from '@/components/icons/InspectAnimationIcon.vue'
 import LayerSelectIcon from '@/components/icons/LayerSelectIcon.vue'
 import MinusIcon from '@/components/icons/MinusIcon.vue'
 import PlusIcon from '@/components/icons/PlusIcon.vue'
@@ -177,8 +182,6 @@ type SpineSlot = {
 const container = ref<HTMLDivElement | null>(null)
 const viewerWrapper = ref<HTMLDivElement | null>(null)
 const toolbarRef = ref<HTMLDivElement | null>(null)
-const editToggleRef = ref<HTMLButtonElement | null>(null)
-const datingToggleRef = ref<HTMLButtonElement | null>(null)
 const backgroundImageWrapperRef = ref<HTMLDivElement | null>(null)
 const backgroundOverlayRef = ref<HTMLDivElement | null>(null)
 const backgroundImageEl = ref<HTMLImageElement | null>(null)
@@ -187,8 +190,9 @@ const overlayCanvas = ref<HTMLCanvasElement | null>(null)
 const progress = ref(0)
 const store = useCharacterStore()
 
-const props = defineProps<{ mobileOverlayActive?: boolean }>()
+const props = defineProps<{ mobileOverlayActive?: boolean; inspectMode?: boolean }>()
 const showingMobileOverlay = computed(() => props.mobileOverlayActive ?? false)
+const inspectMode = computed(() => props.inspectMode ?? false)
 
 const selectedCharacter = computed(() => store.characters.find(c => c.id === store.selectedCharacterId) || null)
 const selectedCharacterUsesDatingTracks = computed(
@@ -1565,7 +1569,22 @@ function getCompositeDataURL(canvasElement: HTMLCanvasElement, transparent: bool
   return offscreen.toDataURL('image/png')
 }
 
-const emit = defineEmits(['animations', 'skins'])
+const emit = defineEmits(['animations', 'skins', 'update:inspectMode'])
+
+function requestViewerRedraw() {
+  requestAnimationFrame(() => {
+    if (!player) return
+    if (compositeActive && overlayInstances.length > 0) {
+      renderCompositeOnce()
+      return
+    }
+    ;(player as unknown as SpinePlayerInternal).drawFrame(false)
+    drawOverlay()
+  })
+}
+
+watch(inspectMode, requestViewerRedraw)
+
 watch(editingBackground, value => {
   if (!value) {
     stopPointerTracking()
@@ -1624,7 +1643,7 @@ async function load() {
   const ANIMATION_TYPE_BASE_PATH = {
     character: char.spine,
     ultimate: `cutscene/${char.cutscene}`,
-    dating: !store.showDatingBg && char.datingHasNoBg ? `dating_nobg/${char.dating}` : `dating/${char.dating}`,
+    dating: `dating/${char.dating}`,
   }
 
   const assetRoot = import.meta.env.DEV ? 'src/assets/spines' : 'assets/spines'
@@ -2001,18 +2020,6 @@ watch(() => store.backgroundColor, () => {
   if (compositeActive && overlayInstances.length > 0) {
     requestPausedCompositeRender()
   }
-})
-
-watch(() => store.showDatingBg, () => {
-  if (recorder && recorder.state === 'recording') {
-    cancelExport = true
-    recorder.stop()
-  }
-  if (exportingFrames) {
-    cancelExport = true
-  }
-  resetComposite()
-  void load()
 })
 
 watch(() => store.layerSelectionEnabled, enabled => {

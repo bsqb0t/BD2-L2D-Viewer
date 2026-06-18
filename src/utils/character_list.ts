@@ -281,7 +281,6 @@ export default {
     "cutscene": "cutscene_char000296",
     "dating": "illust_dating7",
     "datingUsesTracks": true,
-    "datingHasNoBg": false
   },
   "000301": {
     "charName": "Scheherazade",
@@ -317,7 +316,6 @@ export default {
     "spine": "char000396",
     "cutscene": "cutscene_char000396",
     "dating": "illust_dating18",
-    "datingHasNoBg": false,
     "datingUsesTracks": true
   },
   "000401": {
@@ -411,7 +409,6 @@ export default {
     "spine": "char000706",
     "cutscene": "cutscene_char000706",
     "dating": "illust_dating11",
-    "datingHasNoBg": false,
     "datingUsesTracks": true
   },
   "000707": {
@@ -514,7 +511,6 @@ export default {
     "cutscene": "cutscene_char001197",
     "dating": "illust_dating9",
     "datingUsesTracks": true,
-    "datingHasNoBg": false
   },
   "001201": {
     "charName": "Liatris",
@@ -679,7 +675,6 @@ export default {
     "spine": "char003604",
     "cutscene": "cutscene_char003604",
     "dating": "illust_dating16",
-    "datingHasNoBg": false,
     "datingUsesTracks": true
   },
   "003701": {
@@ -731,7 +726,6 @@ export default {
     "cutscene": "cutscene_char003892",
     "dating": "illust_dating14",
     "datingUsesTracks": true,
-    "datingHasNoBg": false
   },
   "003901": {
     "charName": "Sonya",
@@ -781,7 +775,6 @@ export default {
     "spine": "char004102",
     "cutscene": "cutscene_char004102",
     "dating": "illust_dating13",
-    "datingHasNoBg": false,
     "datingUsesTracks": true
   },
   "004201": {
@@ -797,7 +790,6 @@ export default {
     "spine": "char004202",
     "cutscene": "cutscene_char004202",
     "dating": "illust_dating17",
-    "datingHasNoBg": false,
     "datingUsesTracks": true
   },
   "004301": {
@@ -1080,7 +1072,6 @@ export default {
     "spine": "char061492",
     "cutscene": "cutscene_char061492",
     "dating": "illust_dating12",
-    "datingHasNoBg": false,
     "datingUsesTracks": true
   },
   "062001": {
@@ -1224,7 +1215,6 @@ export default {
     "spine": "char067004",
     "cutscene": "cutscene_char067004",
     "dating": "illust_dating15",
-    "datingHasNoBg": false,
     "datingUsesTracks": true
   },
   "067101": {
@@ -1252,8 +1242,9 @@ export default {
     "charName": "Granhildr",
     "costumeName": "Combat Medic",
     "spine": "char067104",
-    "cutscene": "",
-    "dating": ""
+    "cutscene": "cutscene_char067104",
+    "dating": "illust_dating19",
+    "datingUsesTracks": true
   },
   "067201": {
     "charName": "Venaka",
@@ -1410,6 +1401,5 @@ export default {
   cutscene: string,
   dating: string,
   icon?: string,
-  datingHasNoBg?: boolean,
   datingUsesTracks?: boolean
 } }
