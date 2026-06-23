@@ -559,7 +559,9 @@ function getAnimSpecHold(spec: CutsceneAnim) {
 }
 
 function getSpineAssetRoot() {
-  return import.meta.env.DEV ? 'src/assets/spines' : 'assets/spines'
+  return import.meta.env.DEV
+    ? 'src/assets/spines'
+    : import.meta.env.VITE_SPINE_ASSET_ROOT || 'assets/spines'
 }
 
 function getScopedLayerName(source: string | null, slotName: string) {
@@ -1646,8 +1648,7 @@ async function load() {
     dating: `dating/${char.dating}`,
   }
 
-  const assetRoot = import.meta.env.DEV ? 'src/assets/spines' : 'assets/spines'
-  const path = `${assetRoot}/${char.id}/${ANIMATION_TYPE_BASE_PATH[store.animationCategory]}`
+  const path = `${getSpineAssetRoot()}/${char.id}/${ANIMATION_TYPE_BASE_PATH[store.animationCategory]}`
 
   const binaryUrl = char.customFiles?.skel || `${path}.skel`
   const jsonUrl = char.customFiles?.json
