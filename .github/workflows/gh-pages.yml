@@ -32,8 +32,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: actions/configure-pages@v5
       - run: pnpm run build-pages
-        env:
-          VITE_SPINE_ASSET_ROOT: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/src/assets/spines
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
